@@ -1,0 +1,23 @@
+AT+CSQ
+AT+CREG?
+ATD+79219666439;
+AT+CMGF=1
+AT+CMGS="+79219666439"
+
+
+
+AT+CPIN?
+AT+CSTT="m.tinkoff.","",""
+AT+CIICR
+AT+CIFSR
+
+
+Настройка:
+
+AT                            проверка, что модудь "здесь"
+ATE0                          эхо офф
+AT+CSQ                        проверка уровня сигнала
+AT+CREG?                      проверка регистрации в сети
+AT+CSTT="m.tinkoff.","",""    настройка апн
+AT+CIICR                      gprs connect
+AT+CIFSR                      прочитать ip-адрес
