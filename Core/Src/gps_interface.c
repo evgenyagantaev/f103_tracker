@@ -25,6 +25,7 @@ int gps_new_message_received_flag_get()
 void gps_object_init()
 {
 	gps_new_message_received_flag_reset();
+	gps_odd_even = 0;
 }
 
 
@@ -38,6 +39,7 @@ void gps_action()
 
 		if(strstr(gps_message, "GNRMC") != NULL)
 		{
+			gps_odd_even = (gps_odd_even + 1)%2;
 
 			if(strstr(gps_message, "A") != NULL)
 			{
@@ -54,11 +56,16 @@ void gps_action()
 					i++;
 				}
 
+				int intpart;
+				sscanf(aux_message, "%d.", &intpart);
+				intpart = (int)((float)intpart*1.852);
+				sprintf(aux_message, "%3d", intpart);
+
 				ssd1306_SetCursor(0,0);
 				ssd1306_WriteString("           ", Font_11x18, White);
 				ssd1306_SetCursor(0,0);
 				ssd1306_WriteString(aux_message, Font_11x18, White);
-				ssd1306_UpdateScreen();
+				//ssd1306_UpdateScreen();
 
 				strncpy(aux_message, &(gps_message[20]), 11);
 				aux_message[11] = 0;
@@ -67,7 +74,7 @@ void gps_action()
 				ssd1306_WriteString("           ", Font_11x18, White);
 				ssd1306_SetCursor(0,22);
 				ssd1306_WriteString(aux_message, Font_11x18, White);
-				ssd1306_UpdateScreen();
+				//ssd1306_UpdateScreen();
 
 				strncpy(aux_message, &(gps_message[35]), 11);
 				aux_message[11] = 0;
@@ -80,11 +87,15 @@ void gps_action()
 			}
 			else
 			{
-				sprintf(aux_message, "no data");
+				ssd1306_SetCursor(0,0);
+				ssd1306_WriteString("          ", Font_11x18, White);
 				ssd1306_SetCursor(0,22);
 				ssd1306_WriteString("           ", Font_11x18, White);
 				ssd1306_SetCursor(0,22);
-				ssd1306_WriteString(aux_message, Font_11x18, White);
+				if(gps_odd_even)
+					ssd1306_WriteString("no data    ", Font_11x18, White);
+				else
+					ssd1306_WriteString("NO DATA    ", Font_11x18, White);
 				ssd1306_SetCursor(0,44);
 				ssd1306_WriteString("           ", Font_11x18, White);
 				ssd1306_UpdateScreen();

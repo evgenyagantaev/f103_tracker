@@ -11,4 +11,6 @@ static int gps_new_message_received_flag;
 
 static char aux_message[64];
 
+int gps_odd_even;
+
 #endif // GPS_OBJ_H

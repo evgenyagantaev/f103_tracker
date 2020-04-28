@@ -53,6 +53,8 @@ int main(void)
 	ssd1306_SetCursor(0,0);
 	ssd1306_UpdateScreen();
 
+	int odd_even = 0;
+
 	usart1_buffer_obj_write_reset();
 	gps_new_message_received_flag_reset();
 
@@ -70,6 +72,18 @@ int main(void)
 			ssd1306_UpdateScreen();
     	}
 		//*/
+
+    	if(HAL_GetTick()%500 == 0)
+    	{
+    		ssd1306_SetCursor(110,0);
+    		if(odd_even)
+    			ssd1306_WriteString("+", Font_11x18, White);
+    		else
+    			ssd1306_WriteString("x", Font_11x18, White);
+    		ssd1306_UpdateScreen();
+    		odd_even = (odd_even+1)%2;
+    	}
+
 
     	usart1_buffer_action();
     	gps_action();

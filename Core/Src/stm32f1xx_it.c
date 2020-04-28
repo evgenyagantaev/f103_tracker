@@ -4,6 +4,9 @@
 #include "usart1_buffer_interface.h"
 #include "usart2_buffer_interface.h"
 
+#include "ssd1306.h"
+#include "stdio.h"
+
 /* External variables --------------------------------------------------------*/
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
@@ -32,9 +35,16 @@ void NMI_Handler(void)
   */
 void HardFault_Handler(void)
 {
-  /* USER CODE BEGIN HardFault_IRQn 0 */
+	ssd1306_SetCursor(0,0);
+	ssd1306_WriteString("           ", Font_11x18, White);
+	ssd1306_SetCursor(0,22);
+	ssd1306_WriteString("           ", Font_11x18, White);
+	ssd1306_SetCursor(0,22);
+	ssd1306_WriteString("HARD FAULT ", Font_11x18, White);
+	ssd1306_SetCursor(0,44);
+	ssd1306_WriteString("           ", Font_11x18, White);
+	ssd1306_UpdateScreen();
 
-  /* USER CODE END HardFault_IRQn 0 */
   while (1)
   {
     /* USER CODE BEGIN W1_HardFault_IRQn 0 */
@@ -170,6 +180,20 @@ void USART1_IRQHandler(void)
 			usart1_buffer_obj_write((char)usart_data);
 
 		}
+	}
+	else // some errors
+	{
+		ssd1306_SetCursor(0,0);
+		ssd1306_WriteString("usart1     ", Font_11x18, White);
+		ssd1306_SetCursor(0,22);
+		ssd1306_WriteString("error      ", Font_11x18, White);
+		ssd1306_UpdateScreen();
+
+		// clear error flags
+		uint32_t aux;
+		aux = USART1->SR;
+		aux = USART1->DR;
+		UNUSED(aux);
 	}
 }
 
