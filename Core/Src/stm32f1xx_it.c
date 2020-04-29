@@ -7,6 +7,8 @@
 #include "ssd1306.h"
 #include "stdio.h"
 
+#include "extern_globals.h"
+
 /* External variables --------------------------------------------------------*/
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
@@ -176,8 +178,33 @@ void USART1_IRQHandler(void)
 		 if (((isrflags & USART_SR_RXNE) != RESET) && ((cr1its & USART_CR1_RXNEIE) != RESET))
 		{
 			usart_data = (uint16_t) USART1->DR;
-			usart1_new_byte_flag_set();
-			usart1_buffer_obj_write((char)usart_data);
+			usart1_buffer[usart1_write_buffer][usart1_write_index] = (char)usart_data;
+			usart1_write_index++;
+			if((char)usart_data == '\n') // new full message received
+			{
+				usart1_received_messages++;
+
+				if(usart1_old_message_saved)
+				{
+					usart1_buffer[usart1_write_buffer][usart1_write_index] = 0;
+					usart1_message_length = usart1_write_index;
+					usart1_write_index = 0;
+					usart1_write_buffer = (usart1_write_buffer + 1) % 2;
+					usart1_read_buffer = (usart1_read_buffer + 1) % 2;
+					usart1_new_message_ready_flag = 1;
+				}
+				else
+				{
+					usart1_write_index = 0;
+					usart1_message_lost = 1;
+				}
+
+			}
+			else
+			{
+				if(usart1_write_index >= USART1_BUFFER_LENGTH) // buffer overflow
+					usart1_write_index = 0;
+			}
 
 		}
 	}

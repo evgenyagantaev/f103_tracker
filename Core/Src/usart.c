@@ -126,8 +126,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 
     /* USART2 interrupt Init */
     HAL_NVIC_SetPriority(USART2_IRQn, 14, 0);
-    HAL_NVIC_EnableIRQ(USART2_IRQn);
-    uartHandle->Instance->CR1 |= USART_CR1_RXNEIE;
+    //HAL_NVIC_EnableIRQ(USART2_IRQn);
+    //uartHandle->Instance->CR1 |= USART_CR1_RXNEIE;
   /* USER CODE BEGIN USART2_MspInit 1 */
 
   /* USER CODE END USART2_MspInit 1 */

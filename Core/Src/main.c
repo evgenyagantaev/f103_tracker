@@ -12,6 +12,20 @@
 #include "gps_interface.h"
 
 void SystemClock_Config(void);
+
+
+
+char usart1_buffer[2][USART1_BUFFER_LENGTH];
+int usart1_write_buffer = 0;
+int usart1_read_buffer = 1;
+int usart1_write_index = 0;
+int usart1_new_message_ready_flag = 0;
+int usart1_message_length = 0;
+int usart1_old_message_saved = 1;
+int usart1_message_lost = 0;
+int usart1_received_messages = 0;
+int usart1_processed_messages = 0;
+
 int main(void)
 {
 	HAL_Init();
@@ -41,7 +55,6 @@ int main(void)
 	ssd1306_UpdateScreen();
 	HAL_Delay(1000);
 
-	usart1_object_init();
 	gps_object_init();
 
 	//uint32_t counter = 0;
@@ -55,8 +68,6 @@ int main(void)
 
 	int odd_even = 0;
 
-	usart1_buffer_obj_write_reset();
-	gps_new_message_received_flag_reset();
 
     while (1)
 	{
@@ -85,7 +96,7 @@ int main(void)
     	}
 
 
-    	usart1_buffer_action();
+    	//usart1_buffer_action();
     	gps_action();
 	}
 
