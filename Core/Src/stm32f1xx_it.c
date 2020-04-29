@@ -182,22 +182,28 @@ void USART1_IRQHandler(void)
 			usart1_write_index++;
 			if((char)usart_data == '\n') // new full message received
 			{
-				usart1_received_messages++;
-
-				if(usart1_old_message_saved)
+				if(usart1_buffer[usart1_write_buffer][1]=='G' && usart1_buffer[usart1_write_buffer][2]=='N' && usart1_buffer[usart1_write_buffer][3]=='R' && usart1_buffer[usart1_write_buffer][4]=='M' && usart1_buffer[usart1_write_buffer][5]=='C')
 				{
-					usart1_buffer[usart1_write_buffer][usart1_write_index] = 0;
-					usart1_message_length = usart1_write_index;
-					usart1_write_index = 0;
-					usart1_write_buffer = (usart1_write_buffer + 1) % 2;
-					usart1_read_buffer = (usart1_read_buffer + 1) % 2;
-					usart1_new_message_ready_flag = 1;
+					usart1_received_messages++;
+
+					if(usart1_old_message_saved)
+					{
+						usart1_buffer[usart1_write_buffer][usart1_write_index] = 0;
+						usart1_message_length = usart1_write_index;
+						usart1_write_index = 0;
+						usart1_write_buffer = (usart1_write_buffer + 1) % 2;
+						usart1_read_buffer = (usart1_read_buffer + 1) % 2;
+						usart1_new_message_ready_flag = 1;
+					}
+					else
+					{
+						usart1_write_index = 0;
+						usart1_message_lost = 1;
+					}
 				}
 				else
-				{
 					usart1_write_index = 0;
-					usart1_message_lost = 1;
-				}
+
 
 			}
 			else
