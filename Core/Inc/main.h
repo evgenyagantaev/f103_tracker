@@ -31,6 +31,7 @@ extern "C" {
 #include "stm32f1xx_hal.h"
 
 #define USART1_BUFFER_LENGTH 256
+#define USART2_BUFFER_LENGTH 256
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);

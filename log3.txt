@@ -1,0 +1,40 @@
+Terminal log file
+Date: 02.05.2020 - 12:42:56
+-----------------------------------------------
+
+^CINIT: 1, 0, 0
+
+^CINIT: 2, 32, 41891
+
+^STN: 37
+
+
++CREG: 3
+
+
+^CINIT: 16, 0, 1638415
+
+^CINIT: 32, 0, 0
+
++CREG: 0
+^CIN638415
+
+^CINIT: 4, 
+^CINIT:
++CIEV: service,  1
++CIEV: roam, 1
+
++CREG: 5
+AT+CMGF=1;&W
+
+OK
+AT+CMGS="+79219666439"
+
+> test sms
++CMGS: 2
+
+OK
+
+-----------------------------------------------
+Date: 02.05.2020 - 12:46:49
+End log file

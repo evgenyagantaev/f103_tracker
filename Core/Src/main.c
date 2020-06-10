@@ -6,6 +6,7 @@
 
 #include "ssd1306.h"
 #include "stdio.h"
+#include "string.h"
 
 #include "usart1_buffer_interface.h"
 #include "usart2_buffer_interface.h"
@@ -26,6 +27,26 @@ int usart1_message_lost = 0;
 int usart1_received_messages = 0;
 int usart1_processed_messages = 0;
 
+char usart2_buffer[2][USART2_BUFFER_LENGTH];
+int usart2_write_buffer = 0;
+int usart2_read_buffer = 1;
+int usart2_write_index = 0;
+int usart2_new_message_ready_flag = 0;
+int usart2_message_length = 0;
+int usart2_old_message_saved = 1;
+int usart2_message_lost = 0;
+int usart2_received_messages = 0;
+int usart2_processed_messages = 0;
+
+char gps_coordinates[64];
+
+int gsm_condition = 0;
+// 0 - ozhidanie creg 5
+// 1 - ozhidanie eha AT+CMGF=1;&W
+// 2 - ozhidanie eha AT+CMGS="+79219666439"
+// 3 - ozhidanie eha > test sms
+// 4 - ozhidanie +CMGS: 2
+
 int main(void)
 {
 	HAL_Init();
@@ -38,6 +59,7 @@ int main(void)
 	MX_I2C2_Init();
 	MX_USART1_UART_Init();
 	MX_USART2_UART_Init();
+
 
 	ssd1306_set_i2c_port(&hi2c1, 1);
 	ssd1306_Init();
@@ -67,7 +89,42 @@ int main(void)
 	ssd1306_UpdateScreen();
 
 	int odd_even = 0;
+	UNUSED(odd_even);
 
+	// DEEP DEBUG ***********************************
+	//***********************************************
+	/*
+	while (1)
+	{
+		if(HAL_GetTick()%1000 == 0)
+		{
+			HAL_UART_Transmit(&huart2, (uint8_t *)"Hello\r\n", 7, 500);
+			HAL_GPIO_TogglePin(onboard_led_GPIO_Port, onboard_led_Pin);
+			//HAL_Delay(5);
+
+			if(usart2_new_message_ready_flag == 0)
+			{
+				ssd1306_SetCursor(0,44);
+				ssd1306_WriteString("           ", Font_11x18, White);
+				ssd1306_UpdateScreen();
+			}
+		}
+
+		if(usart2_new_message_ready_flag)
+		{
+			usart2_new_message_ready_flag = 0;
+			ssd1306_SetCursor(0,44);
+			ssd1306_WriteString("SMS        ", Font_11x18, White);
+			ssd1306_UpdateScreen();
+		}
+	}
+	//*/
+	//***********************************************
+	// DEEP DEBUG ***********************************
+
+
+	int step1 = 0;
+	int step2 = 0;
 
     while (1)
 	{
@@ -86,6 +143,7 @@ int main(void)
 
     	if(HAL_GetTick()%500 == 0)
     	{
+    		/*
     		ssd1306_SetCursor(110,0);
     		if(odd_even)
     			ssd1306_WriteString("+", Font_11x18, White);
@@ -93,11 +151,82 @@ int main(void)
     			ssd1306_WriteString("x", Font_11x18, White);
     		ssd1306_UpdateScreen();
     		odd_even = (odd_even+1)%2;
+    		//*/
+
+    		HAL_GPIO_TogglePin(onboard_led_GPIO_Port, onboard_led_Pin);
+    		HAL_Delay(5);
+
+    		/*
+    		if(usart2_new_message_ready_flag == 0)
+			{
+				ssd1306_SetCursor(0,44);
+				ssd1306_WriteString("           ", Font_11x18, White);
+				ssd1306_UpdateScreen();
+			}
+    		//*/
     	}
 
 
     	//usart1_buffer_action();
     	gps_action();
+
+    	if(usart2_new_message_ready_flag)
+		{
+    		char gsm_message[128];
+
+    		usart2_new_message_ready_flag = 0;
+			usart2_processed_messages++;
+
+			// copy message
+			usart2_old_message_saved = 0;
+			int i;
+			for(i=0; i<=usart2_message_length; i++)
+				gsm_message[i] = usart2_buffer[usart2_read_buffer][i];
+			usart2_old_message_saved = 1;
+
+
+			// debug
+			gsm_message[usart2_message_length-2] = 0;
+			gsm_message[11] = 0;
+
+			ssd1306_SetCursor(0,44);
+			ssd1306_WriteString("           ", Font_11x18, White);
+			ssd1306_SetCursor(0,44);
+			ssd1306_WriteString(gsm_message, Font_11x18, White);
+			ssd1306_UpdateScreen();
+
+			if(gsm_message[1] == 'C' && gsm_message[2] == 'R' && gsm_message[3] == 'E' && gsm_message[7] == '5')
+			{
+				HAL_Delay(3000);
+				sprintf(gsm_message, "AT+CMGF=1;&W\r\n");
+				HAL_UART_Transmit(&huart2, (uint8_t *)gsm_message, strlen(gsm_message), 500);
+			}
+
+			if(gsm_message[0] == 'l' && gsm_message[1] == 'o' && gsm_message[2] == 'c')
+			{
+				HAL_Delay(3000);
+				sprintf(gsm_message, "AT+CMGS=\"+79219666439\"\r\n");
+				HAL_UART_Transmit(&huart2, (uint8_t *)gsm_message, strlen(gsm_message), 500);
+				step2 = 1;
+			}
+			else if(step2 )
+			{
+				HAL_Delay(3000);
+				sprintf(gsm_message, "%s%c", gps_coordinates, 0x1a);
+				HAL_UART_Transmit(&huart2, (uint8_t *)gsm_message, strlen(gsm_message), 500);
+				//HAL_UART_Transmit(&huart2, (uint8_t *)"AT\r\n", 2, 500);
+
+				//ssd1306_SetCursor(0,44);
+				//ssd1306_WriteString("sms sent   ", Font_11x18, White);
+				//ssd1306_UpdateScreen();
+
+				step2 = 0;
+			}
+				//*/
+
+		}
+
+
 	}
 
 }
