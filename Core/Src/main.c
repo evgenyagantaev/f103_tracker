@@ -124,6 +124,7 @@ int main(void)
 
 
 	int step1 = 0;
+	UNUSED(step1);
 	int step2 = 0;
 
     while (1)
@@ -195,7 +196,7 @@ int main(void)
 			ssd1306_WriteString(gsm_message, Font_11x18, White);
 			ssd1306_UpdateScreen();
 
-			if(gsm_message[1] == 'C' && gsm_message[2] == 'R' && gsm_message[3] == 'E' && gsm_message[7] == '5')
+			if(gsm_message[1] == 'C' && gsm_message[2] == 'R' && gsm_message[3] == 'E' && gsm_message[7] == '1')
 			{
 				HAL_Delay(3000);
 				sprintf(gsm_message, "AT+CMGF=1;&W\r\n");
