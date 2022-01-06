@@ -127,6 +127,9 @@ int main(void)
 	UNUSED(step1);
 	int step2 = 0;
 
+	// set apn
+	char gsm_message[128];
+
     while (1)
 	{
     	/*
@@ -173,7 +176,6 @@ int main(void)
 
     	if(usart2_new_message_ready_flag)
 		{
-    		char gsm_message[128];
 
     		usart2_new_message_ready_flag = 0;
 			usart2_processed_messages++;
@@ -201,6 +203,11 @@ int main(void)
 				HAL_Delay(3000);
 				sprintf(gsm_message, "AT+CMGF=1;&W\r\n");
 				HAL_UART_Transmit(&huart2, (uint8_t *)gsm_message, strlen(gsm_message), 500);
+				//HAL_Delay(5000);
+				//sprintf(gsm_message, "AT+CSTT=\"internet\",\"\",\"\"\"\r\n");
+				//HAL_UART_Transmit(&huart2, (uint8_t *)gsm_message, strlen(gsm_message), 500);
+				//HAL_Delay(5000);
+
 			}
 
 			if(gsm_message[0] == 'l' && gsm_message[1] == 'o' && gsm_message[2] == 'c')

@@ -60,8 +60,8 @@ all: main-build
 main-build: f103_tracker.elf secondary-outputs
 
 # Tool invocations
-f103_tracker.elf: $(OBJS) $(USER_OBJS) /home/eugeny/workspace/stm32/f103_tracker/STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "f103_tracker.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"/home/eugeny/workspace/stm32/f103_tracker/STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="f103_tracker.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+f103_tracker.elf: $(OBJS) $(USER_OBJS) C:\workspace\stm32\f103_tracker\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "f103_tracker.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\workspace\stm32\f103_tracker\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="f103_tracker.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
